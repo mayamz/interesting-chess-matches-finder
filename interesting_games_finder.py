@@ -30,8 +30,7 @@ def is_interesting(game):
         if int(game.headers.get("WhiteElo")) > 2100 and int(game.headers.get("BlackElo")) <= 2100:
             cases.add(reasons["high rated player lost"])
         queen_place = chess.D8
-        i = 1
-        for move in game.mainline_moves():
+        for i,move in enumerate(game.mainline_moves(),1):
             if i%2==0:
                 if move.from_square==queen_place:
                     queen_place=move.to_square
