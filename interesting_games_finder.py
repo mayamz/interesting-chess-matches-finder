@@ -1,15 +1,20 @@
 import chess.pgn
+import sys
 import pyinputplus as pyip
 
+reasons = {
+    "high rating players": 6,
+    "high rated player lost": 5,
+    "the players had a lot of time": 4,
+    "black lost queen, but won": 3,
+    "white crowned, but lost": 2,
+    "draw": 1
+}
+
+def get_key(dict,value):
+    return (list(dict.keys())[list(dict.values()).index(value)])
+
 def is_interesting(game):
-    reasons = {
-        "high rating players": 6,
-        "high rated player lost": 5,
-        "the players had a lot of time": 4,
-        "black lost queen, but won": 3,
-        "white crowned, but lost": 2,
-        "draw": 1
-    }
     cases = set()
     if game.headers.get("Termination")== "Abandoned":
         return None
@@ -51,7 +56,11 @@ def is_interesting(game):
 
 def sort_games(games):
     games = sorted(games, key=lambda game: game[0])
-    games =sorted(games,key=len, reverse=True)
+    games = sorted(games,key=len, reverse=True)
+    for game in range (len(games)):
+        for reason in range (len(games[game])):
+            if games[game][reason] in reasons.values():
+                games[game][reason] = get_key(reasons,games[game][reason])
     return games
 
 def checking_all_games(file):
@@ -71,5 +80,9 @@ def checking_all_games(file):
     for game in sort_games(interesting_games):
         print (game)
 
-filename = pyip.inputFilepath("enter file path", mustExist = True)
+if len(sys.argv)>1:
+    filename = sys.argv[1]
+else:
+    filename = pyip.inputFilepath("please enter a path",mustExist=True)
+
 checking_all_games(filename)
