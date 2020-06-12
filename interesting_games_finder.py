@@ -16,7 +16,7 @@ def get_key(value):
 
 def is_interesting(game):
     cases = set()
-    if game.headers.get("Termination")== "Abandoned":
+    if game.headers.get("Termination")!= "Normal":
         return None
 
     if int(game.headers.get("WhiteElo")) > 2100 and int(game.headers.get("BlackElo")) > 2100:
@@ -51,7 +51,7 @@ def is_interesting(game):
                 if move.promotion == 5:
                     theres_a_queen = move.to_square
 
-    elif game.headers.get("Result") =="1-0":
+    if game.headers.get("Result") =="1-0":
         if int(game.headers.get("BlackElo")) > 2100 and int(game.headers.get("WhiteElo")) <= 2100:
             cases.add((reasons["high rated player lost"],0))
     if len(cases)>0:
