@@ -16,7 +16,7 @@ def get_key(value):
 
 def is_interesting(game):
     cases = set()
-    if game.headers.get("Termination")!= "Normal":
+    if game.headers.get("Termination")!= "Normal" or (int(game.headers.get("WhiteElo")) < 1400 and int(game.headers.get("BlackElo")) < 1400):
         return None
 
     if int(game.headers.get("WhiteElo")) > 2100 and int(game.headers.get("BlackElo")) > 2100:
