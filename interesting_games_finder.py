@@ -1,78 +1,34 @@
 import chess.pgn
 import sys
 import pyinputplus as pyip
+from match_class import GameInterestingAttributes
 
-reasons = {
-    "high rating players": 6,
-    "high rated player lost": 5,
-    "the players had a lot of time": 4,
-    "black lost queen, but won": 3,
-    "white crowned, but lost": 2,
-    "draw": 1
-}
 
 def get_key(value):
     return (list(reasons.keys())[list(reasons.values()).index(value)])
 
 def is_interesting(game):
-    cases = set()
-    if game.headers.get("Termination")!= "Normal" or (int(game.headers.get("WhiteElo")) < 1400 and int(game.headers.get("BlackElo")) < 1400):
+    game_data = GameInterestingAttributes(game)
+    score = game_data.score()
+    if score == 0:
         return None
-
-    if int(game.headers.get("WhiteElo")) > 2100 and int(game.headers.get("BlackElo")) > 2100:
-        cases.add((reasons["high rating players"],0))
-
-    if game.headers.get("Result") == "1/2-1/2":
-        cases.add((reasons["draw"],0))
-
-    time, addition = game.headers.get("TimeControl").split("+")
-    if int (time)>=600:
-        cases.add((reasons["the players had a lot of time"],0))
-    if int(time)>=300 and int(addition)>=5:
-        cases.add((reasons["the players had a lot of time"],0))
-
-    if game.headers.get("Result") =="0-1": #black won, white lost
-        if int(game.headers.get("WhiteElo")) > 2100 and int(game.headers.get("BlackElo")) <= 2100:
-            cases.add((reasons["high rated player lost"],0))
-        queen_place = chess.D8
-        theres_a_queen = 0
-        for i,move in enumerate(game.mainline_moves(),1):
-            if theres_a_queen != 0:
-                if move.to_square != theres_a_queen:
-                    cases.add((reasons["white crowned, but lost"],int((i-1)/2+0.5)))
-                theres_a_queen = 0
-            if i%2==0:
-                if move.from_square==queen_place:
-                    queen_place=move.to_square
-            else:
-                if move.to_square==queen_place:
-                    cases.add((reasons["black lost queen, but won"],i/2))
-                    queen_place = -5
-                if move.promotion == 5:
-                    theres_a_queen = move.to_square
-
-    if game.headers.get("Result") =="1-0":
-        if int(game.headers.get("BlackElo")) > 2100 and int(game.headers.get("WhiteElo")) <= 2100:
-            cases.add((reasons["high rated player lost"],0))
-    if len(cases)>0:
-        cases = sorted(cases)
-        cases.append((game.headers.get("Site"),0))
-        return cases
+    return [score, game_data.interesting_parts()]
 
 def sort_games(games):
-    games = sorted(games, key=lambda game: game[0])
-    games = sorted(games,key=len, reverse=True)
-    for game in range (len(games)):
-        for reason in range (len(games[game])):
-            reason_code = games[game][reason]
-            if type(reason_code) == tuple:
-                if reason_code[0] in reasons.values():
-                    games[game][reason] = get_key(games[game][reason][0])
-                else:
-                    games[game][reason] = reason_code[0]
-                if reason_code[1]!=0:
-                    games[game][reason] +=". look for move number %d" %reason_code[1]
-    return games
+    bool_reasons = ["high_rated_players", "high_rated_player_lost", "lots_of_time", "draw"]
+    non_bool_reasons = ["b_lost_queen_but_won", "w_crowned_but_lost"]
+    games = sorted(games,key=lambda x: x[0], reverse=True)
+    organized_games = []
+    for game in games:
+        game = game[1]
+        organized_game = [game["site"]]
+        for reason in game.keys():
+            if reason in bool_reasons:
+                organized_game.append(reason)
+            if reason in non_bool_reasons:
+                organized_game.append(str(reason)+". look for move number"+str(game[reason]))
+        organized_games.append(organized_game)
+    return organized_games
 
 def checking_all_games(file):
     game_file = open(file)
