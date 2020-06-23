@@ -70,7 +70,7 @@ class GameInterestingAttributes ():
 
     def interesting_parts(self):
         all_data = self.analize_game()
-        analitics = {k:v for (k, v) in all_data.items() if v!=False if v!=[]}
+        analitics = {k:v for (k, v) in all_data.items() if v}
         return (analitics)
 
     def score(self):
@@ -81,8 +81,7 @@ class GameInterestingAttributes ():
         score = 0
         if len(interesting)>1:
             score+=(len(interesting)-1)*10
-        reasons = ["high_rated_players", "high_rated_player_lost", "lots_of_time", "draw", "b_lost_queen_but_won", "w_crowned_but_lost"]
-        for i,reason in enumerate(reasons,1):
+        for i,reason in enumerate(GameInterestingAttributes.reasons[1:],1):
             if reason in interesting.keys():
                 score+=i
         return score
