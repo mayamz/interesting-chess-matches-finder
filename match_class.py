@@ -2,14 +2,10 @@ import chess.pgn
 
 
 class GameInterestingAttributes ():
-    reasons = {
-        "high rating players": 6,
-        "high rated player lost": 5,
-        "the players had a lot of time": 4,
-        "black lost queen, but won": 3,
-        "white crowned, but lost": 2,
-        "draw": 1
-    }
+    bool_reasons = ["high_rated_players", "high_rated_player_lost", "lots_of_time", "draw"]
+    non_bool_reasons = ["b_lost_queen_but_won", "w_crowned_but_lost"]
+    reasons = ["site","rejected", "high_rated_players", "high_rated_player_lost", "lots_of_time", "draw",
+               "b_lost_queen_but_won", "w_crowned_but_lost"]
 
     def __init__(self, game):
         self.game = game
@@ -63,23 +59,18 @@ class GameInterestingAttributes ():
             if int(self.game.headers.get("BlackElo")) > 2100 and int(self.game.headers.get("WhiteElo")) <= 2100:
                 self.high_rated_player_lost = True
 
+        self.results = [self.game.headers.get("Site"),self.rejected, self.high_rated_players, self.high_rated_player_lost, self.lots_of_time, self.draw,
+                   self.b_lost_queen_but_won, self.w_crowned_but_lost]
+
     def analize_game(self):
-        reasons = ["rejected","high_rated_players","high_rated_player_lost","lots_of_time","draw","b_lost_queen_but_won","w_crowned_but_lost"]
-        results = [self.rejected, self.high_rated_players, self.high_rated_player_lost, self.lots_of_time, self.draw, self.b_lost_queen_but_won,self.w_crowned_but_lost]
-        analitics = {"site": self.game.headers.get("Site")}
-        for i in range (len(reasons)):
-            analitics[reasons[i]]=results[i]
+        analitics = {}
+        for i in range (len(self.results)):
+            analitics[GameInterestingAttributes.reasons[i]]=self.results[i]
         return (analitics)
 
     def interesting_parts(self):
-        reasons = ["rejected", "high_rated_players", "high_rated_player_lost", "lots_of_time", "draw",
-                   "b_lost_queen_but_won", "w_crowned_but_lost"]
-        results = [self.rejected, self.high_rated_players, self.high_rated_player_lost, self.lots_of_time, self.draw,
-                   self.b_lost_queen_but_won, self.w_crowned_but_lost]
-        analitics = {"site": self.game.headers.get("Site")}
-        for i in range (len(results)):
-            if results[i]!= False and results[i]!=[]:
-                analitics[reasons[i]] = results[i]
+        all_data = self.analize_game()
+        analitics = {k:v for (k, v) in all_data.items() if v!=False if v!=[]}
         return (analitics)
 
     def score(self):
@@ -95,4 +86,3 @@ class GameInterestingAttributes ():
             if reason in interesting.keys():
                 score+=i
         return score
-

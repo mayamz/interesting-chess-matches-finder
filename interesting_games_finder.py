@@ -3,10 +3,6 @@ import sys
 import pyinputplus as pyip
 from match_class import GameInterestingAttributes
 
-
-def get_key(value):
-    return (list(reasons.keys())[list(reasons.values()).index(value)])
-
 def is_interesting(game):
     game_data = GameInterestingAttributes(game)
     score = game_data.score()
@@ -15,17 +11,15 @@ def is_interesting(game):
     return [score, game_data.interesting_parts()]
 
 def sort_games(games):
-    bool_reasons = ["high_rated_players", "high_rated_player_lost", "lots_of_time", "draw"]
-    non_bool_reasons = ["b_lost_queen_but_won", "w_crowned_but_lost"]
     games = sorted(games,key=lambda x: x[0], reverse=True)
     organized_games = []
     for game in games:
         game = game[1]
         organized_game = [game["site"]]
         for reason in game.keys():
-            if reason in bool_reasons:
+            if reason in GameInterestingAttributes.bool_reasons:
                 organized_game.append(reason)
-            if reason in non_bool_reasons:
+            if reason in GameInterestingAttributes.non_bool_reasons:
                 organized_game.append(str(reason)+". look for move number"+str(game[reason]))
         organized_games.append(organized_game)
     return organized_games
