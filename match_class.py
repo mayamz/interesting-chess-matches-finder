@@ -29,6 +29,8 @@ class GameInterestingAttributes ():
             self.draw = True
 
         time, addition = self.game.headers.get("TimeControl").split("+")
+        if int(addition) == 0 and int(time) <= 60:
+            self.rejected = True
         if int (time)>=600:
             self.lots_of_time = True
         if int(time)>=300 and int(addition)>=5:
